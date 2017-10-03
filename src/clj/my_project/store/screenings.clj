@@ -15,10 +15,19 @@
     (t/to-java-date expiry)
     expiry))
 
+(defn get-by-id
+  "Check out make id function for id format"
+  [id]
+  (let [screening (get @storage id)
+        screening (assoc screening :date (t/zoned-date-time (:date screening) 0))]
+   screening))
+
 (defn create-screening
   [screening]
   (enduro/swap!
      storage
      (fn [screenings]
-       (let [slug (:slug screening)]
-         (assoc screenings slug screening)))))
+       (let [;;TODO id should be made based on film-screening-date-time
+             id (:id screening)
+             screening (assoc screening :date (format-date (:date screening)))]
+         (assoc screenings id screening)))))

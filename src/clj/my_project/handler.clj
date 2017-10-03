@@ -10,13 +10,14 @@
              [my-project.view.screenings :as screenings]
              [my-project.store.screenings :as store]
 
-             [clj-time.format :as f]
              [java-time :as t]))
 
+(def datetime-fmt "yyyy-MM-dd'T'HH:mm")
+
 (defn format-date-time
-  "String date in format yyyy-dd-MM'T'HH:mm"
+  "String date in format yyyy-dd-MM'T'HH:mm to java-time/local-date-time"
   [str-date]
-  (f/parse (f/formatter "yyyy-MM-dd'T'HH:mm") str-date))
+  (t/zoned-date-time (t/local-date-time datetime-fmt str-date) 0))
 
 (defroutes admin-routes
   (GET "/screening/add" [] (screenings/add))
@@ -27,13 +28,12 @@
                          :film-country (:country params)
                          :film-date (:release-date params)
                          :film-description (:description params)
-                         :date (t/zoned-date-time (format-date-time (:date params)))
+                         :date (format-date-time (:date params))
                          :allow-bookings (:allowbookings params)
                          :max-seats (:max-seats params)
                          :max-wheelchairs (:wheel-chairs params)
                          :id "slug"}]
-          (println (t/format "MM/dd" (:date screening)))
-          ;(store/create-screening screening)
+          (store/create-screening screening)
           (screenings/screening-list))))
 
 (defroutes screening-routes
@@ -48,3 +48,4 @@
    app-routes
    wrap-webjars
    (wrap-defaults site-defaults)))
+
